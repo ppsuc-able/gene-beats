@@ -80,6 +80,4 @@ docs/                 项目报告、答辩提纲、GitHub 上传说明
 
 ## 期末提交
 
-参阅 [项目报告](docs/项目报告.md)、[五分钟答辩提纲](docs/答辩提纲.md) 和 [GitHub 上传说明](docs/GitHub上传.md)。建议实际操作所有演示，能解释代码后再答辩；按课程要求披露 AI 辅助情况，报告已说明本项目由 AI 辅助开发。
-
-目标 GitHub 仓库：[ppsuc-able/-](https://github.com/ppsuc-able/-)。线上演示尚未启用；本地文件已可以运行。
+目标 GitHub 仓库：[ppsuc-able/-](https://github.com/ppsuc-able/-)。
