@@ -1,0 +1,8 @@
+{
+  "name": "gene-beats",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DNA sonification and mutation teaching lab",
+  "scripts": { "test": "node --test tests/bio.test.js", "start": "node scripts/serve.js" },
+  "engines": { "node": ">=18" }
+}

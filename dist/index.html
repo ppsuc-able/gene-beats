@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="把 DNA 翻译成氨基酸旋律，交互探索同义、错义和无义突变。生物信息学课堂实验。">
+<title>DNA 音乐实验室 · Gene Beats</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="bio.js">
+</script>
+<script defer src="app.js">
+</script>
+</head>
+<body>
+<header>
+<a class="brand" href="index.html">
+<span class="brand-mark">♫</span> GENE BEATS <small>DNA 音乐实验室</small>
+</a>
+<span class="badge">生物信息学 × 声音</span>
+</header>
+<main>
+<div class="intro">
+<div>
+<p class="eyebrow">实验 01 / 听见突变</p>
+<h1>改一个碱基，<br>旋律会怎样？</h1>
+<p>把 DNA 读成氨基酸，再把氨基酸变成音符。<br>先预测，再修改，最后用耳朵验证。</p>
+</div>
+<div class="intro-note">
+<span>DNA</span>
+<b>→</b>
+<span>蛋白质</span>
+<b>→</b>
+<span>旋律</span>
+<p>真实的翻译规则 · 人为设计的音高映射</p>
+</div>
+</div>
+<div class="workspace">
+<section class="panel input-panel">
+<div class="section-title">
+<h2>
+<em>01</em> 给生命一段乐谱</h2>
+<button id="reset" class="text-button">载入示例</button>
+</div>
+<label for="sequence">DNA 序列 / 单条 FASTA</label>
+<textarea id="sequence" spellcheck="false" rows="6" aria-describedby="sequence-help">
+</textarea>
+<p id="sequence-help" class="muted">内置数据为人工教学序列。输入按 5′→3′ 编码链处理，仅支持 A / C / G / T。</p>
+<div class="control-row">
+<label for="frame">阅读框<select id="frame">
+<option value="0">+1 · 从第 1 位开始</option>
+<option value="1">+2 · 从第 2 位开始</option>
+<option value="2">+3 · 从第 3 位开始</option>
+</select>
+</label>
+<button id="analyze" class="primary">分析序列 ↗</button>
+</div>
+<p id="error" role="alert">
+</p>
+<div id="stats" class="stats">
+</div>
+<div id="composition" class="composition" aria-label="碱基组成">
+</div>
+<p id="composition-label" class="muted">
+</p>
+</section>
+<section class="panel mutation-panel">
+<h2>
+<em>02</em> 制造一次小意外</h2>
+<p class="muted">试试三个经典实验，或自由编辑位置。</p>
+<div class="presets">
+<button data-preset="silent">同义 · 不变的旋律</button>
+<button data-preset="missense">错义 · 换一个音符</button>
+<button data-preset="nonsense">无义 · 提前谢幕</button>
+</div>
+<div class="mutation-controls">
+<label for="kind">操作<select id="kind">
+<option value="replace">替换一个碱基</option>
+<option value="insert">在该位前插入</option>
+<option value="delete">删除一个碱基</option>
+</select>
+</label>
+<label for="position">位置（从 1 起）<input id="position" type="number" min="1" value="6">
+</label>
+<label for="base">新碱基<select id="base">
+<option>A</option>
+<option>C</option>
+<option>G</option>
+<option selected>T</option>
+</select>
+</label>
+</div>
+<button id="mutate" class="secondary">应用突变，比较结果</button>
+<div id="effect" class="effect" aria-live="polite">
+<strong>等待你的第一个实验</strong>
+<p>每次突变均以左侧已分析的原始序列为基准。</p>
+</div>
+</section>
+</div>
+<section class="panel orf-panel">
+<div class="section-title">
+<div>
+<p class="eyebrow">NEW · SIX-FRAME EXPLORER</p>
+<h2>六阅读框 ORF 雷达</h2>
+</div>
+<button id="scan-orfs" class="text-button">↻ 扫描当前序列</button>
+</div>
+<p class="muted">真实基因可能位于任一条 DNA 链。雷达同时检查正链与反向互补链，只报告从 ATG 到同框终止密码子的完整开放阅读框。</p>
+<div id="orf-radar" class="orf-radar" aria-label="六阅读框 ORF 扫描结果"></div>
+<div id="orf-summary" class="effect" aria-live="polite"></div>
+</section>
+<section class="panel identity-panel">
+<div class="section-title">
+<div><p class="eyebrow">NEW · DNA ID CARD</p><h2>序列身份证</h2></div>
+<button id="copy-sequence-id" class="text-button">复制指纹 ID</button>
+</div>
+<p class="muted">用相邻碱基的 16 种二联体生成一张序列指纹。它不是物种鉴定，而是本次实验的可复现标签。</p>
+<div class="identity-layout"><div id="dna-heatmap" class="dna-heatmap" aria-label="二联体频率热力图"></div><div class="identity-stats"><div><span>指纹 ID</span><strong id="sequence-id">--------</strong></div><div><span>序列复杂度</span><strong id="sequence-complexity">--</strong></div><div><span>优势二联体</span><strong id="sequence-dominant">--</strong></div></div></div>
+</section>
+<section class="panel score-panel">
+<div class="section-title">
+<div>
+<p class="eyebrow">SEQUENCE → SOUND</p>
+<h2>两条序列，一起看，一起听。</h2>
+</div>
+<div class="play-settings">
+<label for="tempo">速度 <output id="tempo-value">140</output> BPM<input id="tempo" type="range" min="80" max="220" value="140">
+</label>
+<button id="stop">■ 停止</button>
+</div>
+</div>
+<div class="track-head">
+<h3>
+<span class="dot original">
+</span>原始序列 <small id="original-info">
+</small>
+</h3>
+<button id="play-original" class="play">▶ 播放原始</button>
+</div>
+<div id="original-score" class="score">
+</div>
+<div class="track-head">
+<h3>
+<span class="dot variant">
+</span>突变序列 <small id="variant-info">尚未突变</small>
+</h3>
+<button id="play-variant" class="play" disabled>▶ 播放突变</button>
+</div>
+<div id="variant-score" class="score empty">选择上方实验，看看哪些密码子变了。</div>
+<p id="audio-status" class="muted" aria-live="polite">点击播放后发声。每个氨基酸对应一个固定音高；遇到终止密码子停止。</p>
+<p id="translation-note" class="muted">
+</p>
+<button id="download" class="text-button">↓ 导出实验结果 JSON</button>
+</section>
+<section class="panel evolution-panel">
+<div class="section-title"><div><p class="eyebrow">NEW · EVOLUTION SIMULATOR</p><h2>八代以后，旋律还认得出来吗？</h2></div><button id="run-evolution" class="secondary">▶ 开始模拟</button></div>
+<p class="muted">固定随机种子，每一代在已翻译密码子里随机替换一个碱基。结果可重复；这不是自然选择模型，而是用来观察序列变化如何累积。</p>
+<label for="generations">模拟代数 <output id="generations-value">8</output> 代<input id="generations" type="range" min="3" max="20" value="8"></label>
+<div id="evolution-chart" class="evolution-chart" aria-label="序列进化模拟结果"></div><p id="evolution-summary" class="muted">点击开始，查看每一代的氨基酸身份保持率。</p>
+</section>
+<div class="bottom-grid">
+<section class="panel challenge-panel">
+<div class="section-title">
+<div>
+<p class="eyebrow">NEW · MUTATION MYSTERY</p>
+<h2>突变盲盒挑战</h2>
+</div>
+<span id="challenge-score" class="score-chip">0 分 · 0 连胜</span>
+</div>
+<p>系统从当前翻译区随机抽取一次单碱基替换。只看变动位置，先判断结果，再揭晓密码子与蛋白质变化。</p>
+<button id="draw-challenge" class="primary challenge-draw">✦ 抽取一张突变卡</button>
+<div id="challenge-card" class="challenge-card"><span>?</span><p>等待抽取</p></div>
+<div class="guess-buttons">
+<button data-guess="同义突变" disabled>同义</button>
+<button data-guess="错义突变" disabled>错义</button>
+<button data-guess="无义突变" disabled>无义</button>
+</div>
+<p id="challenge-result" aria-live="polite" class="muted">答对得 10 分，连胜还有加成。</p>
+</section>
+<section class="panel method">
+<p class="eyebrow">算法与边界</p>
+<h2>让“好玩”有科学依据。</h2>
+<p>GC 含量 = (G + C) / 总碱基数。直接翻译按所选阅读框查表；ORF 雷达额外扫描两条链的六个阅读框，寻找 ATG 到同框终止密码子的完整片段。</p>
+<p>音乐是数据声化，不是 DNA 的天然声音，也不能用于预测蛋白质功能。项目不处理剪接、模糊碱基或其他遗传密码表。</p>
+<a href="https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi?chapter=tgencodes#SG1" target="_blank" rel="noreferrer">数据依据：NCBI 标准遗传密码表 1 ↗</a>
+</section>
+</div>
+</main>
+<footer>GENE BEATS / 可复现的生物信息学教学实验 <span>本地计算 · 无需上传序列</span>
+</footer>
+</body>
+</html>
